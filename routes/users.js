@@ -1,39 +1,65 @@
 var express = require('express');
 var router = express.Router();
+const userSchema = require('../models/users.model')
 
 // ---------- /users -------------
 /* GET users listing. */
-router.get('/:id', function(req, res, next) {
+router.get('/:id', async function (req, res, next) {
+  try {
+    let params = req.params
+    let querys = req.query
 
-  let params = req.params
-  let querys = req.query
+    let users = await userSchema.find({})
 
-  res.status(200).send({
-    params,
-    querys
-  });
+    res.status(200).send(users);
+  } catch (error) {
+    res.status(500).send(error.toString())
+  }
 });
 
 /* POST */
-router.post('/', function(req, res, next) {
+router.post('/', async function (req, res, next) {
+  try {
+    let { name, age } = req.body
 
-  let body = req.body
-  let { authorization } = req.headers
+    let user = new userSchema({
+      name,
+      age
+    })
 
-  res.status(200).send({
-    body,
-    authorization
-  });
+    let save = await user.save()
+
+    res.status(200).send(save);
+  } catch (error) {
+    res.status(500).send(error.toString())
+  }
 });
 
 /* PUT */
-router.put('/', function(req, res, next) {
-  res.status(200).send('PUT');
+router.put('/:id', async function (req, res, next) {
+  try {
+    let { name, age } = req.body
+
+    let update = await userSchema.findByIdAndUpdate(req.params.id, { name, age }, { new: true })
+
+    res.status(200).send(update);
+  } catch (error) {
+    res.status(500).send(error.toString())
+  }
+
 });
 
 /* DELETE */
-router.delete('/', function(req, res, next) {
-  res.status(200).send('DELETE');
+router.delete('/:id', async function (req, res, next) {
+  try {
+    
+    let delete_user = await userSchema.findByIdAndDelete(req.params.id)
+
+    res.status(200).send(delete_user);
+  } catch (error) {
+    res.status(500).send(error.toString())
+  }
+
 });
 
 module.exports = router;
